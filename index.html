@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistem Inspeksi Panel LVMDP</title>
+    <!-- Modern Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <!-- Main Stylesheet -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Navigation -->
+        <nav class="glass-nav no-print">
+            <div class="logo">INSPEKSI LVMDP</div>
+            <ul class="nav-links">
+                <li><a href="#" class="active" data-target="dashboard">Dashboard</a></li>
+                <li><a href="#" data-target="scanner">Scan QR</a></li>
+                <li><a href="#" data-target="generator">Generator QR</a></li>
+                <li><a href="#" data-target="settings">Settings</a></li>
+            </ul>
+        </nav>
+
+        <main class="content">
+            <!-- Dashboard View -->
+            <section id="dashboard" class="view active no-print">
+                <div class="hero">
+                    <h1>Sistem Manajemen Inspeksi LVMDP</h1>
+                    <p>Terminal 1C 2026</p>
+                    <div class="action-cards">
+                        <div class="card glass-card" onclick="document.querySelector('[data-target=\'scanner\']').click()">
+                            <div class="icon">🔍</div>
+                            <h3>Scan QR Code</h3>
+                            <p>Mulai inspeksi peralatan dengan scan QR di lokasi.</p>
+                        </div>
+                        <div class="card glass-card" onclick="document.querySelector('[data-target=\'generator\']').click()">
+                            <div class="icon">🖨️</div>
+                            <h3>Print Label QR</h3>
+                            <p>Buat dan cetak label QR Code untuk ditempel di panel.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Scanner View -->
+            <section id="scanner" class="view no-print">
+                <div class="scanner-container glass-card">
+                    <h2>Scan QR Code Panel</h2>
+                    <div id="reader" width="100%"></div>
+                    <div id="scanner-status" class="status-msg">Menunggu izin kamera...</div>
+                </div>
+
+                <!-- Form Modal / Section (Hidden initially) -->
+                <div id="form-section" class="form-container glass-card hidden">
+                    <h2>Form Inspeksi</h2>
+                    <form id="inspection-form">
+                        <div class="form-group">
+                            <label>Area</label>
+                            <input type="text" id="input-area" name="Area" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label>Gardu/Panel</label>
+                            <input type="text" id="input-peralatan" name="Gardu/Panel" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label>Tanggal</label>
+                            <input type="date" id="input-tanggal" name="Tanggal" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Kegiatan Perawatan</label>
+                            <select id="input-kegiatan" name="Kegiatan Perawatan" required>
+                                <option value="">-- Pilih Kegiatan --</option>
+                                <option value="2 Mingguan">2 Mingguan</option>
+                                <option value="Bulanan">Bulanan</option>
+                                <option value="Tahunan">Tahunan</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Kondisi Operasional</label>
+                            <select id="input-kondisi" name="Kondisi" required>
+                                <option value="">-- Pilih Kondisi --</option>
+                                <option value="Normal">Normal</option>
+                                <option value="Abnormal">Abnormal</option>
+                                <option value="Normal dengan catatan">Normal dengan catatan</option>
+                            </select>
+                        </div>
+                        <div class="form-group hidden" id="note-group">
+                            <label>Catatan Tambahan (Wajib untuk 'Normal dengan catatan')</label>
+                            <textarea id="input-catatan" name="Catatan Tambahan" rows="3"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>PIC</label>
+                            <input type="text" id="input-pic" name="PIC" placeholder="Nama petugas" required>
+                        </div>
+                        
+                        <div class="form-actions">
+                            <button type="button" class="btn btn-secondary" id="btn-cancel-form">Batal</button>
+                            <button type="submit" class="btn btn-primary" id="btn-submit-form">Kirim Data</button>
+                        </div>
+                    </form>
+                    <div id="submit-loading" class="hidden">Mengirim data ke Google Sheets...</div>
+                </div>
+            </section>
+
+            <!-- Generator View -->
+            <section id="generator" class="view">
+                <div class="generator-header no-print glass-card">
+                    <h2>Daftar Label QR Code</h2>
+                    <p>Tekan tombol Print untuk mencetak semua label di bawah ini.</p>
+                    <div class="controls">
+                        <select id="area-filter">
+                            <option value="ALL">Semua Area</option>
+                            <!-- Options populated by JS -->
+                        </select>
+                        <button class="btn btn-primary" onclick="window.print()">🖨️ Print Label</button>
+                    </div>
+                </div>
+
+                <div id="qr-list" class="print-container">
+                    <!-- QR Codes generated here -->
+                </div>
+            </section>
+
+            <!-- Settings View -->
+            <section id="settings" class="view no-print">
+                <div class="settings-container glass-card">
+                    <h2>Pengaturan Aplikasi</h2>
+                    <div class="form-group">
+                        <label>Google Apps Script Web App URL</label>
+                        <input type="text" id="input-gas-url" placeholder="https://script.google.com/macros/s/AKfycb.../exec">
+                        <small>Paste URL Web App dari Google Sheets di sini untuk mengaktifkan fitur simpan data.</small>
+                    </div>
+                    <button class="btn btn-primary" id="btn-save-settings">Simpan Pengaturan</button>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+    <script src="data.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
