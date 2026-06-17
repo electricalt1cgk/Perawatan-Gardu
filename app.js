@@ -39,7 +39,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- 2. Settings Management ---
     const GAS_URL_KEY = 'lvmdp_gas_url';
-    const DEFAULT_GAS_URL = 'https://script.google.com/macros/s/AKfycbwnOMxj3j6rDzwu0sLBb8LUIlYF6HJ4llj0qDx-Hbd1AvTm6oJRuFjuC5_u0TsecEOO/exec';
+    const DEFAULT_GAS_URL = 'https://script.google.com/macros/s/AKfycbzQ-juLMbcymH_D-6tCLTGLIEWkNRXyyoH_OUzi4qystZnnMaDIT3ilDTA8Ujw98IiB/exec';
     const inputGasUrl = document.getElementById('input-gas-url');
     const btnSaveSettings = document.getElementById('btn-save-settings');
 
@@ -226,18 +226,19 @@ document.addEventListener('DOMContentLoaded', () => {
         formSection.classList.add('hidden');
         scannerContainer.classList.remove('hidden');
         form.reset();
-        noteGroup.classList.add('hidden');
+        inputCatatan.removeAttribute('required');
         inputTanggal.value = today;
         initScanner();
     });
 
     inputKondisi.addEventListener('change', (e) => {
+        const labelCatatan = document.getElementById('label-catatan');
         if (e.target.value === 'Normal dengan catatan') {
-            noteGroup.classList.remove('hidden');
             inputCatatan.setAttribute('required', 'true');
+            labelCatatan.innerHTML = 'Catatan <span style="color:red">* (Wajib)</span>';
         } else {
-            noteGroup.classList.add('hidden');
             inputCatatan.removeAttribute('required');
+            labelCatatan.innerHTML = 'Catatan';
         }
     });
 
@@ -253,6 +254,12 @@ document.addEventListener('DOMContentLoaded', () => {
         const formData = new FormData(form);
         const dataObj = {};
         formData.forEach((value, key) => {
+            if (key === 'Tanggal' && value) {
+                const parts = value.split('-');
+                if (parts.length === 3) {
+                    value = `${parts[2]}/${parts[1]}/${parts[0]}`; // DD/MM/YYYY
+                }
+            }
             dataObj[key] = value;
         });
 
