@@ -85,6 +85,7 @@ function initApp() {
     // --- 3. Generator Logic ---
     const qrListContainer = document.getElementById('qr-list');
     const areaFilter = document.getElementById('area-filter');
+    const typeFilter = document.getElementById('type-filter');
     let isGeneratorInit = false;
 
     function initGenerator() {
@@ -102,20 +103,30 @@ function initApp() {
             areaFilter.appendChild(option);
         });
 
-        renderQRCodes('ALL');
+        renderQRCodes('ALL', '');
         isGeneratorInit = true;
 
         areaFilter.addEventListener('change', (e) => {
-            renderQRCodes(e.target.value);
+            renderQRCodes(e.target.value, typeFilter.value);
         });
+
+        if (typeFilter) {
+            typeFilter.addEventListener('input', (e) => {
+                renderQRCodes(areaFilter.value, e.target.value);
+            });
+        }
     }
 
-    function renderQRCodes(filterArea) {
+    function renderQRCodes(filterArea, filterType) {
         qrListContainer.innerHTML = '';
+        const keyword = filterType ? filterType.toLowerCase().trim() : '';
+
         Object.keys(lvmdpData).forEach(area => {
             if (filterArea === 'ALL' || filterArea === area) {
                 lvmdpData[area].forEach(peralatan => {
-                    createQRLabel(area, peralatan);
+                    if (!keyword || peralatan.toLowerCase().includes(keyword)) {
+                        createQRLabel(area, peralatan);
+                    }
                 });
             }
         });
