@@ -1,41 +1,59 @@
-document.addEventListener('DOMContentLoaded', () => {
+// Register Service Worker for PWA
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register('sw.js')
+            .then(reg => console.log('Service Worker registered', reg))
+            .catch(err => console.error('Service Worker registration failed', err));
+    });
+}
+
+function initApp() {
     // --- 1. View Routing & Navigation ---
     const navLinks = document.querySelectorAll('.nav-links a');
     const views = document.querySelectorAll('.view');
     let html5QrcodeScanner = null;
 
-    navLinks.forEach(link => {
-        link.addEventListener('click', (e) => {
-            e.preventDefault();
-            const targetId = link.getAttribute('data-target');
-            
-            // Update Active Link
-            navLinks.forEach(l => l.classList.remove('active'));
-            link.classList.add('active');
+    function switchView(targetId) {
+        // Update Active Link
+        navLinks.forEach(l => l.classList.remove('active'));
+        const activeLink = document.querySelector(`.nav-links a[data-target="${targetId}"]`);
+        if (activeLink) activeLink.classList.add('active');
 
-            // Show Target View
-            views.forEach(view => {
-                view.classList.remove('active');
-                if (view.id === targetId) {
-                    view.classList.add('active');
-                }
-            });
-
-            // Handle Scanner initialization
-            if (targetId === 'scanner') {
-                initScanner();
-            } else {
-                stopScanner();
-                document.getElementById('form-section').classList.add('hidden');
-                document.querySelector('.scanner-container').classList.remove('hidden');
-            }
-
-            // Handle Generator initialization
-            if (targetId === 'generator') {
-                initGenerator();
+        // Show Target View
+        views.forEach(view => {
+            view.classList.remove('active');
+            if (view.id === targetId) {
+                view.classList.add('active');
             }
         });
-    });
+
+        // Handle Scanner initialization
+        if (targetId === 'scanner') {
+            initScanner();
+        } else {
+            stopScanner();
+        }
+
+        // Handle Generator initialization
+        if (targetId === 'generator') {
+            initGenerator();
+        }
+    }
+
+    function handleRouting() {
+        const hash = window.location.hash || '#dashboard';
+        const targetId = hash.substring(1);
+        
+        const targetView = document.getElementById(targetId);
+        if (targetView && targetView.classList.contains('view')) {
+            switchView(targetId);
+        } else {
+            window.location.hash = '#dashboard';
+        }
+    }
+
+    window.addEventListener('hashchange', handleRouting);
+    handleRouting();
 
     // --- 2. Settings Management ---
     const GAS_URL_KEY = 'lvmdp_gas_url';
@@ -43,7 +61,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const inputGasUrl = document.getElementById('input-gas-url');
     const btnSaveSettings = document.getElementById('btn-save-settings');
 
-    // Load saved URL
     const savedUrl = localStorage.getItem(GAS_URL_KEY);
     if (savedUrl) {
         inputGasUrl.value = savedUrl;
@@ -71,9 +88,13 @@ document.addEventListener('DOMContentLoaded', () => {
     let isGeneratorInit = false;
 
     function initGenerator() {
-        if (isGeneratorInit) return; // Prevent re-rendering
-        
-        // Populate Filter
+        if (isGeneratorInit) return;
+
+        if (typeof QRCode === 'undefined') {
+            qrListContainer.innerHTML = '<div style="color: #f87171; padding: 20px; text-align: center; grid-column: 1/-1; font-weight: 500;">Gagal memuat pustaka QR Code generator (offline atau URL CDN tidak dapat diakses). Silakan segarkan halaman setelah terhubung ke internet.</div>';
+            return;
+        }
+
         Object.keys(lvmdpData).forEach(area => {
             const option = document.createElement('option');
             option.value = area;
@@ -114,54 +135,50 @@ document.addEventListener('DOMContentLoaded', () => {
 
         qrListContainer.appendChild(labelDiv);
 
-        // Encode data as JSON
         const qrData = JSON.stringify({ a: area, p: peralatan });
 
         new QRCode(qrDiv, {
             text: qrData,
             width: 128,
             height: 128,
-            colorDark : "#000000",
-            colorLight : "#ffffff",
-            correctLevel : QRCode.CorrectLevel.L
+            colorDark: "#000000",
+            colorLight: "#ffffff",
+            correctLevel: QRCode.CorrectLevel.L
         });
     }
 
     // --- 4. Scanner Logic ---
     function initScanner() {
         const scannerStatus = document.getElementById('scanner-status');
-        if (html5QrcodeScanner) return; // Already running
+        if (html5QrcodeScanner) return;
 
-        // Setup Html5Qrcode
         html5QrcodeScanner = new Html5Qrcode("reader");
         const config = { fps: 10, qrbox: { width: 250, height: 250 } };
 
         scannerStatus.textContent = "Mencari kamera...";
-        
+
         Html5Qrcode.getCameras().then(devices => {
             if (devices && devices.length) {
                 let cameraId = devices[0].id;
-                // Try to get back camera
                 for (let i = 0; i < devices.length; i++) {
                     if (devices[i].label.toLowerCase().includes('back') || devices[i].label.toLowerCase().includes('environment')) {
                         cameraId = devices[i].id;
                         break;
                     }
                 }
-                
+
                 html5QrcodeScanner.start(
-                    cameraId, 
-                    config, 
-                    onScanSuccess, 
-                    (errorMessage) => {
-                        // ignore scan errors, it throws them constantly while searching
+                    cameraId,
+                    config,
+                    onScanSuccess,
+                    (errorMessage) => { }
+                )
+                    .then(() => {
+                        scannerStatus.textContent = "Arahkan kamera ke QR Code";
                     })
-                .then(() => {
-                    scannerStatus.textContent = "Arahkan kamera ke QR Code";
-                })
-                .catch((err) => {
-                    scannerStatus.textContent = `Error starting camera: ${err}`;
-                });
+                    .catch((err) => {
+                        scannerStatus.textContent = `Error starting camera: ${err}`;
+                    });
             } else {
                 scannerStatus.textContent = "Kamera tidak ditemukan.";
             }
@@ -185,9 +202,7 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             const data = JSON.parse(decodedText);
             if (data.a && data.p) {
-                // Play success beep if available
                 if ('vibrate' in navigator) navigator.vibrate(200);
-
                 stopScanner();
                 showForm(data.a, data.p);
             } else {
@@ -198,9 +213,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // --- 5. Form Logic ---
-    const formSection = document.getElementById('form-section');
-    const scannerContainer = document.querySelector('.scanner-container');
+    // --- 5. Form Logic & Manual Entry ---
     const inputArea = document.getElementById('input-area');
     const inputPeralatan = document.getElementById('input-peralatan');
     const inputKondisi = document.getElementById('input-kondisi');
@@ -209,33 +222,77 @@ document.addEventListener('DOMContentLoaded', () => {
     const form = document.getElementById('inspection-form');
     const btnCancel = document.getElementById('btn-cancel-form');
     const submitLoading = document.getElementById('submit-loading');
+    const btnManualEntry = document.getElementById('btn-manual-entry');
+
+    // Populate Area Dropdown
+    Object.keys(lvmdpData).forEach(area => {
+        const option = document.createElement('option');
+        option.value = area;
+        option.textContent = area;
+        inputArea.appendChild(option);
+    });
+
+    // Handle Area Change to populate Peralatan
+    inputArea.addEventListener('change', (e) => {
+        const selectedArea = e.target.value;
+        inputPeralatan.innerHTML = '<option value="">-- Pilih Gardu/Panel --</option>'; // Reset
+
+        if (selectedArea && lvmdpData[selectedArea]) {
+            inputPeralatan.disabled = false;
+            lvmdpData[selectedArea].forEach(panel => {
+                const option = document.createElement('option');
+                option.value = panel;
+                option.textContent = panel;
+                inputPeralatan.appendChild(option);
+            });
+        } else {
+            inputPeralatan.disabled = true;
+        }
+    });
 
     // Auto set date to today
     const inputTanggal = document.getElementById('input-tanggal');
     const today = new Date().toISOString().split('T')[0];
     inputTanggal.value = today;
 
-    function showForm(area, peralatan) {
-        scannerContainer.classList.add('hidden');
-        formSection.classList.remove('hidden');
-        inputArea.value = area;
-        inputPeralatan.value = peralatan;
+    // Handle Manual Entry Click
+    if (btnManualEntry) {
+        btnManualEntry.addEventListener('click', () => {
+            form.reset();
+            inputArea.value = "";
+            inputPeralatan.innerHTML = '<option value="">-- Pilih Gardu/Panel --</option>';
+            inputPeralatan.disabled = true;
+            inputCatatan.removeAttribute('required');
+            const labelCatatan = document.getElementById('label-catatan');
+            if (labelCatatan) labelCatatan.innerHTML = 'Catatan';
+            location.hash = '#form-view';
+        });
+    }
+
+    function showForm(prefillArea, prefillPeralatan) {
+        if (prefillArea && prefillPeralatan) {
+            inputArea.value = prefillArea;
+            // Trigger change to populate peralatan
+            inputArea.dispatchEvent(new Event('change'));
+            inputPeralatan.value = prefillPeralatan;
+        }
+        location.hash = '#form-view';
     }
 
     btnCancel.addEventListener('click', () => {
-        formSection.classList.add('hidden');
-        scannerContainer.classList.remove('hidden');
+        location.hash = '#dashboard';
         form.reset();
         inputCatatan.removeAttribute('required');
+        const labelCatatan = document.getElementById('label-catatan');
+        if (labelCatatan) labelCatatan.innerHTML = 'Catatan';
         inputTanggal.value = today;
-        initScanner();
     });
 
     inputKondisi.addEventListener('change', (e) => {
         const labelCatatan = document.getElementById('label-catatan');
         if (e.target.value === 'Normal dengan catatan') {
             inputCatatan.setAttribute('required', 'true');
-            labelCatatan.innerHTML = 'Catatan <span style="color:red">* (Wajib)</span>';
+            labelCatatan.innerHTML = 'Catatan <span style="color:#f87171">* (Wajib)</span>';
         } else {
             inputCatatan.removeAttribute('required');
             labelCatatan.innerHTML = 'Catatan';
@@ -244,7 +301,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     form.addEventListener('submit', (e) => {
         e.preventDefault();
-        
+
         const gasUrl = getGasUrl();
         if (!gasUrl) {
             alert('URL Web App Google Sheets belum diatur. Silakan ke menu Settings terlebih dahulu.');
@@ -268,32 +325,36 @@ document.addEventListener('DOMContentLoaded', () => {
         submitBtn.disabled = true;
         submitLoading.classList.remove('hidden');
 
-        // Send to GAS
         fetch(gasUrl, {
             method: 'POST',
-            // Sending as plain text to avoid complex CORS preflight issues with Google Apps Script
             headers: {
                 'Content-Type': 'text/plain;charset=utf-8',
             },
             body: JSON.stringify(dataObj)
         })
-        .then(response => response.json())
-        .then(data => {
-            if (data.result === 'success') {
-                alert('Data berhasil disimpan ke Google Sheets!');
-                btnCancel.click(); // Reset and back to scanner
-            } else {
-                alert('Gagal menyimpan: ' + data.error);
-            }
-        })
-        .catch(err => {
-            console.error(err);
-            alert('Terjadi kesalahan saat mengirim data. Pastikan URL benar dan internet aktif.');
-        })
-        .finally(() => {
-            submitBtn.disabled = false;
-            submitLoading.classList.add('hidden');
-        });
+            .then(response => response.json())
+            .then(data => {
+                if (data.result === 'success') {
+                    alert('Data berhasil disimpan ke Google Sheets!');
+                    btnCancel.click(); // Reset and back to dashboard
+                } else {
+                    alert('Gagal menyimpan: ' + data.error);
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                alert('Terjadi kesalahan saat mengirim data. Pastikan URL benar dan internet aktif.');
+            })
+            .finally(() => {
+                submitBtn.disabled = false;
+                submitLoading.classList.add('hidden');
+            });
     });
 
-});
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initApp);
+} else {
+    initApp();
+}

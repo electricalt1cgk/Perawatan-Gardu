@@ -1,0 +1,17 @@
+{
+  "name": "Electrical Services T1",
+  "short_name": "Electrical T1",
+  "description": "Sistem Manajemen Laporan Perawatan Gardu dan Panel T1C",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#f8fafc",
+  "theme_color": "#4F46E5",
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "192x192 512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
