@@ -398,7 +398,7 @@ function initApp() {
     if (btnTorch) {
         btnTorch.addEventListener('click', () => {
             if (html5QrcodeScanner && html5QrcodeScanner.isScanning) {
-                const track = html5QrcodeScanner.getActiveTrack();
+                const track = html5QrcodeScanner.getRunningTrack();
                 if (track) {
                     try {
                         const capabilities = track.getCapabilities();
