@@ -521,3 +521,125 @@ body {
     .hero p { font-size: 1rem; }
     .glass-card { padding: 20px; border-radius: 20px; }
 }
+
+/* QR Generator Loading Spinner */
+.qr-spinner {
+    width: 40px;
+    height: 40px;
+    border: 4px solid rgba(255, 255, 255, 0.1);
+    border-top: 4px solid var(--primary);
+    border-radius: 50%;
+    animation: qr-spin 1s linear infinite;
+}
+
+.qr-spinner-small {
+    width: 16px;
+    height: 16px;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    border-top: 2px solid #ffffff;
+    border-radius: 50%;
+    animation: qr-spin 1s linear infinite;
+    display: inline-block;
+    margin-right: 8px;
+    vertical-align: middle;
+}
+
+@keyframes qr-spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Modal Overlay Styling */
+.modal-overlay {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(2, 6, 23, 0.8);
+    backdrop-filter: blur(8px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2000;
+    transition: opacity 0.3s ease;
+}
+.modal-content {
+    max-width: 480px;
+    width: 90%;
+    text-align: center;
+    animation: zoomIn 0.3s ease forwards;
+}
+.detected-panel-info {
+    margin: 20px 0;
+    padding: 15px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+}
+.area-tag {
+    background: rgba(59, 130, 246, 0.2);
+    color: var(--primary);
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+.modal-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 25px;
+}
+.modal-actions .btn {
+    width: 100%;
+}
+
+@keyframes zoomIn {
+    from { opacity: 0; transform: scale(0.95); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+/* History Table Styling */
+.history-table th, .history-table td {
+    padding: 12px 8px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+.history-table tr:hover td {
+    background: rgba(255, 255, 255, 0.02);
+}
+.status-badge {
+    padding: 3px 8px;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    display: inline-block;
+}
+.status-badge.normal {
+    background: rgba(16, 185, 129, 0.2);
+    color: var(--secondary);
+}
+.status-badge.abnormal {
+    background: rgba(239, 68, 68, 0.2);
+    color: var(--danger);
+}
+.status-badge.warning {
+    background: rgba(245, 158, 11, 0.2);
+    color: #f59e0b;
+}
+.status-badge.corrective {
+    background: rgba(139, 92, 246, 0.2);
+    color: var(--accent);
+}
+
+.btn-accent {
+    background: linear-gradient(135deg, var(--accent), #7c3aed);
+    color: white;
+    box-shadow: 0 4px 15px rgba(139, 92, 246, 0.4);
+    border: 1px solid rgba(255,255,255,0.1);
+}
+.btn-accent:hover {
+    box-shadow: 0 6px 20px rgba(139, 92, 246, 0.6);
+}

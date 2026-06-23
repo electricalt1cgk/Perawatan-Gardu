@@ -1,9 +1,9 @@
-const CACHE_NAME = 'lvmdp-cache-v7';
+const CACHE_NAME = 'lvmdp-cache-v12';
 const urlsToCache = [
   './',
   './index.html',
-  './styles.css?v=4',
-  './app.js?v=4',
+  './styles.css?v=8',
+  './app.js?v=9',
   './data.js?v=7',
   './icon.svg'
 ];

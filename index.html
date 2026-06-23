@@ -11,7 +11,7 @@
     <!-- Modern Font -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <!-- Main Stylesheet -->
-    <link rel="stylesheet" href="styles.css?v=4">
+    <link rel="stylesheet" href="styles.css?v=8">
 </head>
 
 <body>
@@ -50,18 +50,69 @@
                                     clip-rule="evenodd" />
                             </svg></span>
                         <span class="nav-text">Settings</span></a></li>
+                <li id="nav-logout" style="display:none;"><a href="#" id="btn-logout" class="text-secondary">
+                        <span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                            <polyline points="16 17 21 12 16 7"></polyline>
+                            <line x1="21" y1="12" x2="9" y2="12"></line>
+                        </svg></span>
+                        <span class="nav-text">Logout</span></a></li>
             </ul>
         </nav>
 
         <main class="content">
+            <!-- Login View -->
+            <section id="login" class="view">
+                <div class="login-container glass-card" style="max-width: 400px; margin: 40px auto; text-align: center;">
+                    <div style="margin-bottom: 20px;">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width: 60px; height: 60px; color: var(--primary); margin: 0 auto;">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75" />
+                        </svg>
+                    </div>
+                    <h2 style="margin-bottom: 5px;">Login Petugas</h2>
+                    <p style="color: var(--text-light); margin-bottom: 25px; font-size: 0.9rem;">Sistem Inspeksi Panel LVMDP T1C</p>
+                    
+                    <form id="login-form">
+                        <div class="form-group" style="text-align: left;">
+                            <label>Username</label>
+                            <input type="text" id="login-username" required placeholder="Masukkan username">
+                        </div>
+                        <div class="form-group" style="text-align: left;">
+                            <label>Password</label>
+                            <input type="password" id="login-password" required placeholder="Masukkan password">
+                        </div>
+                        <button type="submit" class="btn btn-primary" id="btn-submit-login" style="width: 100%; margin-top: 10px;">
+                            Login
+                        </button>
+                    </form>
+                    <div id="login-loading" class="hidden" style="margin-top: 15px; font-size: 0.9rem; color: var(--primary);">Memeriksa kredensial...</div>
+                    <div style="margin-top: 25px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 15px;">
+                        <button onclick="location.hash='#settings'" style="background: none; border: none; color: var(--text-light); text-decoration: underline; cursor: pointer; font-size: 0.85rem;">Pengaturan URL Web App</button>
+                    </div>
+                </div>
+            </section>
+
             <!-- Dashboard View -->
             <section id="dashboard" class="view active no-print">
+                <div id="offline-sync-banner" class="glass-card hidden" style="margin-bottom: 30px; border-color: rgba(239, 68, 68, 0.4); background: rgba(239, 68, 68, 0.1); padding: 15px 25px; display: flex; justify-content: space-between; align-items: center;">
+                    <div style="display: flex; align-items: center; gap: 12px; text-align: left;">
+                        <span style="font-size: 1.5rem;">⚠️</span>
+                        <div>
+                            <strong style="color: var(--text-main); font-weight: 600;">Laporan Tersimpan Offline</strong>
+                            <p style="color: var(--text-light); font-size: 0.85rem; margin-top: 2px;"><span id="offline-count-text">0</span> laporan belum disinkronkan ke Google Sheets.</p>
+                        </div>
+                    </div>
+                    <button class="btn btn-primary" id="btn-sync-now" style="padding: 8px 16px; font-size: 0.9rem; min-height: auto;">
+                        Sinkronkan
+                    </button>
+                </div>
+
                 <div class="hero">
                     <h1>Sistem Manajemen Laporan Perawatan Gardu dan Panel T1C</h1>
                     <p>Terminal 1C 2026</p>
                     <div class="action-cards">
-                        <div class="card glass-card"
-                            onclick="location.hash = '#scanner'">
+                        <!-- Card 1: Scan QR -->
+                        <div class="card glass-card" onclick="location.hash = '#scanner'">
                             <div class="icon text-primary"><svg xmlns="http://www.w3.org/2000/svg" fill="none"
                                     viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round"
@@ -70,17 +121,56 @@
                                         d="M6.75 6.75h.75v.75h-.75v-.75zM6.75 16.5h.75v.75h-.75v-.75zM16.5 6.75h.75v.75h-.75v-.75zM13.5 13.5h.75v.75h-.75v-.75zM13.5 19.5h.75v.75h-.75v-.75zM19.5 13.5h.75v.75h-.75v-.75zM19.5 19.5h.75v.75h-.75v-.75zM16.5 16.5h.75v.75h-.75v-.75z" />
                                 </svg></div>
                             <h3>Scan QR Code</h3>
-                            <p>Inspeksi cepat dengan scan barcode panel di lokasi.</p>
+                            <p>Pindai barcode panel di lokasi untuk laporan Rutin/Corrective.</p>
                         </div>
-                        <div class="card glass-card" id="btn-manual-entry">
-                            <div class="icon text-secondary"><svg xmlns="http://www.w3.org/2000/svg" fill="none"
-                                    viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round"
-                                        d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m3.75 9v6m3-3H9m1.5-12H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
+                        <!-- Card 2: Inspeksi Rutin Manual -->
+                        <div class="card glass-card" id="btn-manual-preventive">
+                            <div class="icon text-secondary"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                                    <polyline points="14 2 14 8 20 8"></polyline>
+                                    <line x1="16" y1="13" x2="8" y2="13"></line>
+                                    <line x1="16" y1="17" x2="8" y2="17"></line>
+                                    <polyline points="10 9 9 9 8 9"></polyline>
                                 </svg></div>
-                            <h3>Isi Laporan Manual</h3>
-                            <p>Pilih panel secara manual tanpa menggunakan kamera.</p>
+                            <h3>Inspeksi Rutin (Manual)</h3>
+                            <p>Isi laporan perawatan terjadwal tanpa menggunakan kamera.</p>
                         </div>
+                        <!-- Card 3: Laporan Corrective Manual -->
+                        <div class="card glass-card" id="btn-manual-corrective">
+                            <div class="icon text-accent"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path>
+                                </svg></div>
+                            <h3>Laporan Corrective</h3>
+                            <p>Laporkan perbaikan atau temuan kerusakan panel listrik.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent History Logs -->
+                <div class="recent-history glass-card" style="margin-top: 40px; text-align: left;">
+                    <h3 style="margin-bottom: 20px; font-size: 1.25rem; font-weight: 600; display: flex; align-items: center; gap: 10px;">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" width="20" height="20" style="color: var(--primary);">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        Riwayat Inspeksi Terakhir (HP Ini)
+                    </h3>
+                    <div class="table-responsive" style="overflow-x: auto;">
+                        <table class="history-table" style="width: 100%; border-collapse: collapse; font-size: 0.9rem;">
+                            <thead>
+                                <tr style="border-bottom: 1px solid var(--glass-border); text-align: left; color: var(--text-light);">
+                                    <th style="padding: 12px 8px;">Waktu</th>
+                                    <th style="padding: 12px 8px;">Panel</th>
+                                    <th style="padding: 12px 8px;">Tipe Laporan</th>
+                                    <th style="padding: 12px 8px;">Status / Kondisi</th>
+                                    <th style="padding: 12px 8px;">PIC</th>
+                                </tr>
+                            </thead>
+                            <tbody id="history-list">
+                                <tr>
+                                    <td colspan="5" style="text-align: center; padding: 20px; color: var(--text-light);">Belum ada riwayat laporan di perangkat ini.</td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </section>
@@ -90,6 +180,9 @@
                 <div class="scanner-container glass-card">
                     <h2>Scan QR Code Panel</h2>
                     <div id="reader" width="100%"></div>
+                    <button class="btn btn-secondary hidden" id="btn-toggle-torch" style="margin-top: 15px; width: 100%;">
+                        🔦 Nyalakan Senter
+                    </button>
                     <div id="scanner-status" class="status-msg">Menunggu izin kamera...</div>
                 </div>
             </section>
@@ -154,6 +247,75 @@
                 </div>
             </section>
 
+            <!-- Corrective Form View -->
+            <section id="corrective-form-view" class="view no-print">
+                <div class="form-container glass-card">
+                    <h2>Form Laporan Corrective</h2>
+                    <form id="corrective-form">
+                        <div class="form-group">
+                            <label>Area</label>
+                            <select id="corrective-area" name="Area" required>
+                                <option value="">-- Pilih Area --</option>
+                                <!-- Populated by JS -->
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Gardu/Panel</label>
+                            <select id="corrective-peralatan" name="Gardu/Panel" required disabled>
+                                <option value="">-- Pilih Gardu/Panel --</option>
+                                <!-- Populated by JS -->
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Tanggal Temuan/Tindakan</label>
+                            <input type="date" id="corrective-tanggal" name="Tanggal" required>
+                        </div>
+                        <div class="form-group" style="display: flex; gap: 15px;">
+                            <div style="flex: 1;">
+                                <label>Jam Mulai</label>
+                                <input type="time" id="corrective-jam-mulai" name="Jam Mulai" required>
+                            </div>
+                            <div style="flex: 1;">
+                                <label>Jam Selesai</label>
+                                <input type="time" id="corrective-jam-selesai" name="Jam Selesai" required>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Uraian Masalah / Kerusakan</label>
+                            <textarea id="corrective-masalah" name="Uraian Masalah" rows="3"
+                                placeholder="Jelaskan detail temuan masalah atau kerusakan panel..." required></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>Tindakan Perbaikan yang Dilakukan</label>
+                            <textarea id="corrective-tindakan" name="Tindakan Perbaikan" rows="3"
+                                placeholder="Jelaskan tindakan perbaikan yang telah/akan dilakukan..." required></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>Status Perbaikan</label>
+                            <select id="corrective-status" name="Status Perbaikan" required>
+                                <option value="">-- Pilih Status --</option>
+                                <option value="Open">Open (Belum Selesai)</option>
+                                <option value="Progress">Progress (Sedang Dikerjakan)</option>
+                                <option value="Closed">Closed (Selesai/Normal)</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>PIC / Petugas</label>
+                            <input type="text" id="corrective-pic" name="PIC" placeholder="Nama petugas" required>
+                        </div>
+                        <div class="form-group" style="display:none;">
+                            <input type="hidden" name="Tipe Laporan" value="Corrective">
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="button" class="btn btn-secondary" id="btn-cancel-corrective">Batal</button>
+                            <button type="submit" class="btn btn-accent" id="btn-submit-corrective">Kirim Data</button>
+                        </div>
+                    </form>
+                    <div id="corrective-submit-loading" class="hidden" style="color: var(--accent); font-weight: 500; margin-top: 20px;">Mengirim data corrective...</div>
+                </div>
+            </section>
+
             <!-- Generator View -->
             <section id="generator" class="view">
                 <div class="generator-header no-print glass-card">
@@ -165,7 +327,7 @@
                             <!-- Options populated by JS -->
                         </select>
                         <input type="text" id="type-filter" placeholder="Filter tipe (Cth: Ruangan, SDP)" style="padding: 10px 15px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); background: rgba(0,0,0,0.3); color: white; margin-right: 10px; flex: 1; max-width: 200px;">
-                        <button class="btn btn-primary" onclick="window.print()">
+                        <button class="btn btn-primary" id="btn-print-qr">
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="20"
                                 height="20" style="margin-right: 8px;">
                                 <path
@@ -193,17 +355,39 @@
                             data.</small>
                     </div>
                     <button class="btn btn-primary" id="btn-save-settings">Simpan Pengaturan</button>
+                    <button class="btn btn-secondary" style="margin-top: 15px;" onclick="window.location.hash = localStorage.getItem('lvmdp_user') ? '#dashboard' : '#login'">Kembali</button>
                 </div>
             </section>
 
         </main>
     </div>
 
+    <!-- Scan Choice Modal -->
+    <div id="scan-choice-modal" class="modal-overlay hidden">
+        <div class="modal-content glass-card">
+            <h3>Panel Terdeteksi</h3>
+            <div class="detected-panel-info">
+                <span class="area-tag" id="modal-area-name">Area Name</span>
+                <strong id="modal-panel-name" style="color: var(--text-main); font-size: 1.2rem;">Panel Name</strong>
+            </div>
+            <p style="color: var(--text-light); margin-bottom: 20px;">Silakan pilih jenis laporan yang ingin dibuat:</p>
+            <div class="modal-actions">
+                <button class="btn btn-primary" id="btn-modal-preventive">
+                    Inspeksi Rutin (Preventive)
+                </button>
+                <button class="btn btn-accent" id="btn-modal-corrective">
+                    Perbaikan (Corrective)
+                </button>
+                <button class="btn btn-secondary" id="btn-modal-cancel">Batal</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Scripts -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
     <script src="data.js?v=7"></script>
-    <script src="app.js?v=4"></script>
+    <script src="app.js?v=9"></script>
 </body>
 
 </html>
