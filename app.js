@@ -169,7 +169,7 @@ function initApp() {
 
     // --- 2. Settings Management ---
     const GAS_URL_KEY = 'lvmdp_gas_url';
-    const DEFAULT_GAS_URL = 'https://script.google.com/macros/s/AKfycbyKXxU7pkJLg0AkjjbucU0sokgNMp0N5zOTLPD1HhJBZPUAEnBafoAMSBlX9KcPcf71/exec';
+    const DEFAULT_GAS_URL = 'https://script.google.com/macros/s/AKfycbzQ-juLMbcymH_D-6tCLTGLIEWkNRXyyoH_OUzi4qystZnnMaDIT3ilDTA8Ujw98IiB/exec';
     const inputGasUrl = document.getElementById('input-gas-url');
     const btnSaveSettings = document.getElementById('btn-save-settings');
 
@@ -397,27 +397,33 @@ function initApp() {
 
     if (btnTorch) {
         btnTorch.addEventListener('click', () => {
-            if (html5QrcodeScanner && html5QrcodeScanner.isScanning) {
-                const track = html5QrcodeScanner.getRunningTrack();
-                if (track) {
-                    try {
-                        const capabilities = track.getCapabilities();
-                        if (capabilities.torch) {
-                            isTorchOn = !isTorchOn;
-                            track.applyConstraints({
-                                advanced: [{ torch: isTorchOn }]
-                            }).then(() => {
-                                btnTorch.innerHTML = isTorchOn ? '🔦 Matikan Senter' : '🔦 Nyalakan Senter';
-                            }).catch(err => {
-                                console.error("Failed to toggle torch", err);
-                            });
-                        } else {
-                            alert("Flashlight/Senter tidak didukung pada kamera ini.");
-                        }
-                    } catch(e) {
-                        console.error("Torch error:", e);
+            try {
+                // Gunakan cara native (langsung ke elemen video) daripada fungsi internal library
+                const video = document.querySelector('#reader video');
+                if (video && video.srcObject) {
+                    const tracks = video.srcObject.getVideoTracks();
+                    if (tracks.length > 0) {
+                        const track = tracks[0];
+                        isTorchOn = !isTorchOn;
+                        track.applyConstraints({
+                            advanced: [{ torch: isTorchOn }]
+                        }).then(() => {
+                            btnTorch.innerHTML = isTorchOn ? '🔦 Matikan Senter' : '🔦 Nyalakan Senter';
+                        }).catch(err => {
+                            // Mengembalikan state jika gagal
+                            isTorchOn = !isTorchOn; 
+                            alert("Fitur senter tidak didukung di perangkat/kamera ini.");
+                            console.error("Torch error:", err);
+                        });
+                    } else {
+                        alert("Trek video tidak ditemukan.");
                     }
+                } else {
+                    alert("Kamera belum sepenuhnya aktif. Tunggu beberapa detik.");
                 }
+            } catch(e) {
+                alert("Error menyalakan senter: " + e.message);
+                console.error(e);
             }
         });
     }
