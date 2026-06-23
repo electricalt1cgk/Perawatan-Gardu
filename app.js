@@ -169,7 +169,7 @@ function initApp() {
 
     // --- 2. Settings Management ---
     const GAS_URL_KEY = 'lvmdp_gas_url';
-    const DEFAULT_GAS_URL = 'https://script.google.com/macros/s/AKfycbzQ-juLMbcymH_D-6tCLTGLIEWkNRXyyoH_OUzi4qystZnnMaDIT3ilDTA8Ujw98IiB/exec';
+    const DEFAULT_GAS_URL = 'https://script.google.com/macros/s/AKfycbyKXxU7pkJLg0AkjjbucU0sokgNMp0N5zOTLPD1HhJBZPUAEnBafoAMSBlX9KcPcf71/exec';
     const inputGasUrl = document.getElementById('input-gas-url');
     const btnSaveSettings = document.getElementById('btn-save-settings');
 
