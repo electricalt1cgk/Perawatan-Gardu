@@ -450,19 +450,9 @@ function initApp() {
                 )
                     .then(() => {
                         scannerStatus.textContent = "Arahkan kamera ke QR Code";
-                        // Check if camera track supports torch
+                        // Show flashlight button by default when camera starts
                         setTimeout(() => {
-                            try {
-                                const track = html5QrcodeScanner.getActiveTrack();
-                                if (track) {
-                                    const capabilities = track.getCapabilities();
-                                    if (capabilities.torch && btnTorch) {
-                                        btnTorch.classList.remove('hidden'); // Show flashlight button!
-                                    }
-                                }
-                            } catch(e) {
-                                console.log("Failed to inspect torch capabilities:", e);
-                            }
+                            if (btnTorch) btnTorch.classList.remove('hidden');
                         }, 500);
                     })
                     .catch((err) => {
@@ -1028,6 +1018,33 @@ function initApp() {
     // --- 6. Initial Page Load Rendering ---
     renderHistoryLogs();
     updateOfflineBanner();
+
+    // --- 7. Network Indicator ---
+    function updateNetworkStatus() {
+        const indicator = document.getElementById('network-indicator');
+        const indicatorDot = document.getElementById('network-indicator-dot');
+        const indicatorText = document.getElementById('network-indicator-text');
+        if (!indicator || !indicatorDot || !indicatorText) return;
+        
+        if (navigator.onLine) {
+            indicator.style.background = 'rgba(34,197,94,0.15)';
+            indicator.style.borderColor = 'rgba(74,222,128,0.3)';
+            indicator.style.color = '#4ade80';
+            indicatorDot.style.background = '#4ade80';
+            indicatorDot.style.boxShadow = '0 0 5px #4ade80';
+            indicatorText.textContent = 'ONLINE';
+        } else {
+            indicator.style.background = 'rgba(239,68,68,0.15)';
+            indicator.style.borderColor = 'rgba(248,113,113,0.3)';
+            indicator.style.color = '#f87171';
+            indicatorDot.style.background = '#f87171';
+            indicatorDot.style.boxShadow = '0 0 5px #f87171';
+            indicatorText.textContent = 'OFFLINE';
+        }
+    }
+    window.addEventListener('online', updateNetworkStatus);
+    window.addEventListener('offline', updateNetworkStatus);
+    updateNetworkStatus();
 
 }
 

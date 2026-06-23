@@ -517,6 +517,16 @@ body {
         transform: translateY(-2px);
         filter: drop-shadow(0 0 5px rgba(59,130,246,0.5));
     }
+    #nav-network {
+        position: fixed;
+        top: 15px;
+        right: 15px;
+        z-index: 2000;
+        flex: none !important;
+        width: auto !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
     .hero h1 { font-size: 1.8rem; }
     .hero p { font-size: 1rem; }
     .glass-card { padding: 20px; border-radius: 20px; }

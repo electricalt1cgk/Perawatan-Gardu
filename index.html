@@ -11,10 +11,17 @@
     <!-- Modern Font -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <!-- Main Stylesheet -->
-    <link rel="stylesheet" href="styles.css?v=8">
+    <link rel="stylesheet" href="styles.css?v=10">
 </head>
 
 <body>
+    <!-- Floating Global Network Indicator -->
+    <div id="global-network-indicator" class="no-print" style="position: fixed; top: 15px; right: 15px; z-index: 9999; backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border-radius: 20px;">
+        <div id="network-indicator" style="font-size: 0.75rem; font-weight: 700; padding: 6px 14px; border-radius: 20px; background: rgba(34,197,94,0.2); color: #4ade80; border: 1px solid rgba(74,222,128,0.4); display: flex; align-items: center; gap: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.4);">
+            <span id="network-indicator-dot" style="width: 8px; height: 8px; border-radius: 50%; background: #4ade80; display: inline-block; box-shadow: 0 0 8px #4ade80;"></span>
+            <span id="network-indicator-text">ONLINE</span>
+        </div>
+    </div>
     <div class="app-container">
         <!-- Navigation -->
         <nav class="glass-nav no-print">
@@ -387,7 +394,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
     <script src="data.js?v=7"></script>
-    <script src="app.js?v=9"></script>
+    <script src="app.js?v=11"></script>
 </body>
 
 </html>
