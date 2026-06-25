@@ -431,7 +431,7 @@ function initApp() {
             } catch (e) {
                 // Kembalikan status jika gagal
                 isTorchOn = !isTorchOn;
-                alert("Senter gagal dinyalakan. Pastikan Anda menggunakan kamera belakang pada perangkat seluler dan browser Anda memberikan izin.");
+                alert("Senter gagal dinyalakan.\nDetail Error: " + (e.message || e) + "\n\nPastikan Anda menggunakan kamera belakang pada perangkat seluler dan browser Anda memberikan izin.");
                 console.error(e);
             }
         });
@@ -444,41 +444,27 @@ function initApp() {
         html5QrcodeScanner = new Html5Qrcode("reader");
         const config = { fps: 10, qrbox: { width: 250, height: 250 } };
 
-        scannerStatus.textContent = "Mencari kamera...";
+        scannerStatus.textContent = "Membuka kamera...";
         initTorchButton();
 
-        Html5Qrcode.getCameras().then(devices => {
-            if (devices && devices.length) {
-                let cameraId = devices[0].id;
-                for (let i = 0; i < devices.length; i++) {
-                    if (devices[i].label.toLowerCase().includes('back') || devices[i].label.toLowerCase().includes('environment')) {
-                        cameraId = devices[i].id;
-                        break;
-                    }
-                }
-
-                html5QrcodeScanner.start(
-                    cameraId,
-                    config,
-                    onScanSuccess,
-                    (errorMessage) => { }
-                )
-                    .then(() => {
-                        scannerStatus.textContent = "Arahkan kamera ke QR Code";
-                        // Show flashlight button by default when camera starts
-                        setTimeout(() => {
-                            if (btnTorch) btnTorch.classList.remove('hidden');
-                        }, 500);
-                    })
-                    .catch((err) => {
-                        scannerStatus.textContent = `Error starting camera: ${err}`;
-                    });
-            } else {
-                scannerStatus.textContent = "Kamera tidak ditemukan.";
-            }
-        }).catch(err => {
-            scannerStatus.textContent = `Error getting cameras: ${err}`;
-        });
+        // Menggunakan constraints facingMode: "environment" secara langsung agar
+        // browser otomatis memilih kamera belakang, terlepas dari izin label kamera saat pertama kali dimuat.
+        html5QrcodeScanner.start(
+            { facingMode: "environment" },
+            config,
+            onScanSuccess,
+            (errorMessage) => { }
+        )
+            .then(() => {
+                scannerStatus.textContent = "Arahkan kamera ke QR Code";
+                // Show flashlight button by default when camera starts
+                setTimeout(() => {
+                    if (btnTorch) btnTorch.classList.remove('hidden');
+                }, 500);
+            })
+            .catch((err) => {
+                scannerStatus.textContent = `Error starting camera: ${err}`;
+            });
     }
 
     function stopScanner() {
