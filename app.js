@@ -398,7 +398,6 @@ function initApp() {
     if (btnTorch) {
         btnTorch.addEventListener('click', async () => {
             try {
-                alert("DEBUG: Tombol senter ditekan. Target status: " + (!isTorchOn));
                 isTorchOn = !isTorchOn;
 
                 // Metode 1: Menggunakan API resmi html5-qrcode
