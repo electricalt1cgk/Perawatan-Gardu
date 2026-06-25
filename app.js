@@ -43,10 +43,10 @@ function initApp() {
     function handleRouting() {
         const hash = window.location.hash || '#dashboard';
         let targetId = hash.substring(1);
-        
+
         const currentUserStr = localStorage.getItem('lvmdp_user');
         const currentUser = currentUserStr ? JSON.parse(currentUserStr) : null;
-        
+
         // Hide Navigation if not logged in
         const mainNav = document.querySelector('nav.glass-nav');
         if (mainNav) {
@@ -77,7 +77,7 @@ function initApp() {
             targetId = 'dashboard';
             window.location.hash = '#dashboard';
         }
-        
+
         // Show/Hide Logout Button
         const navLogout = document.getElementById('nav-logout');
         if (navLogout) {
@@ -88,7 +88,7 @@ function initApp() {
         if (currentUser) {
             const inputPicPreventive = document.getElementById('input-pic');
             if (inputPicPreventive && !inputPicPreventive.value) inputPicPreventive.value = currentUser.nama;
-            
+
             const inputPicCorrective = document.getElementById('corrective-pic');
             if (inputPicCorrective && !inputPicCorrective.value) inputPicCorrective.value = currentUser.nama;
         }
@@ -113,10 +113,10 @@ function initApp() {
             const password = document.getElementById('login-password').value;
             const btnSubmit = document.getElementById('btn-submit-login');
             const loadingMsg = document.getElementById('login-loading');
-            
+
             btnSubmit.disabled = true;
             loadingMsg.classList.remove('hidden');
-            
+
             if (!navigator.onLine) {
                 alert('Anda harus terhubung ke internet untuk melakukan login pertama kali.');
                 btnSubmit.disabled = false;
@@ -134,7 +134,7 @@ function initApp() {
                     }),
                     headers: { 'Content-Type': 'text/plain;charset=utf-8' }
                 });
-                
+
                 const result = await response.json();
                 if (result.result === 'success') {
                     localStorage.setItem('lvmdp_user', JSON.stringify({
@@ -169,7 +169,7 @@ function initApp() {
 
     // --- 2. Settings Management ---
     const GAS_URL_KEY = 'lvmdp_gas_url';
-    const DEFAULT_GAS_URL = 'https://script.google.com/macros/s/AKfycbzQ-juLMbcymH_D-6tCLTGLIEWkNRXyyoH_OUzi4qystZnnMaDIT3ilDTA8Ujw98IiB/exec';
+    const DEFAULT_GAS_URL = 'https://script.google.com/macros/s/AKfycbyKXxU7pkJLg0AkjjbucU0sokgNMp0N5zOTLPD1HhJBZPUAEnBafoAMSBlX9KcPcf71/exec';
     const inputGasUrl = document.getElementById('input-gas-url');
     const btnSaveSettings = document.getElementById('btn-save-settings');
 
@@ -396,33 +396,42 @@ function initApp() {
     }
 
     if (btnTorch) {
-        btnTorch.addEventListener('click', () => {
+        btnTorch.addEventListener('click', async () => {
             try {
-                // Gunakan cara native (langsung ke elemen video) daripada fungsi internal library
+                isTorchOn = !isTorchOn;
+
+                // Metode 1: Menggunakan API resmi html5-qrcode
+                if (html5QrcodeScanner && typeof html5QrcodeScanner.applyVideoConstraints === 'function') {
+                    try {
+                        await html5QrcodeScanner.applyVideoConstraints({
+                            advanced: [{ torch: isTorchOn }]
+                        });
+                        btnTorch.innerHTML = isTorchOn ? '🔦 Matikan Senter' : '🔦 Nyalakan Senter';
+                        return;
+                    } catch (libErr) {
+                        console.warn("Library applyVideoConstraints gagal, mencoba manipulasi track langsung...", libErr);
+                    }
+                }
+
+                // Metode 2: Fallback manipulasi track media stream langsung dari DOM video
                 const video = document.querySelector('#reader video');
                 if (video && video.srcObject) {
                     const tracks = video.srcObject.getVideoTracks();
                     if (tracks.length > 0) {
                         const track = tracks[0];
-                        isTorchOn = !isTorchOn;
-                        track.applyConstraints({
+                        await track.applyConstraints({
                             advanced: [{ torch: isTorchOn }]
-                        }).then(() => {
-                            btnTorch.innerHTML = isTorchOn ? '🔦 Matikan Senter' : '🔦 Nyalakan Senter';
-                        }).catch(err => {
-                            // Mengembalikan state jika gagal
-                            isTorchOn = !isTorchOn; 
-                            alert("Fitur senter tidak didukung di perangkat/kamera ini.");
-                            console.error("Torch error:", err);
                         });
-                    } else {
-                        alert("Trek video tidak ditemukan.");
+                        btnTorch.innerHTML = isTorchOn ? '🔦 Matikan Senter' : '🔦 Nyalakan Senter';
+                        return;
                     }
-                } else {
-                    alert("Kamera belum sepenuhnya aktif. Tunggu beberapa detik.");
                 }
-            } catch(e) {
-                alert("Error menyalakan senter: " + e.message);
+
+                throw new Error("Senter/Torch tidak didukung oleh perangkat atau kamera Anda.");
+            } catch (e) {
+                // Kembalikan status jika gagal
+                isTorchOn = !isTorchOn;
+                alert("Senter gagal dinyalakan. Pastikan Anda menggunakan kamera belakang pada perangkat seluler dan browser Anda memberikan izin.");
                 console.error(e);
             }
         });
@@ -668,7 +677,7 @@ function initApp() {
         const gasUrl = getGasUrl();
         const formData = new FormData(form);
         const dataObj = {};
-        
+
         formData.forEach((value, key) => {
             if (key === 'Tanggal' && value) {
                 const parts = value.split('-');
@@ -739,7 +748,7 @@ function initApp() {
             const gasUrl = getGasUrl();
             const formData = new FormData(correctiveForm);
             const dataObj = {};
-            
+
             formData.forEach((value, key) => {
                 if (key === 'Tanggal' && value) {
                     const parts = value.split('-');
@@ -807,7 +816,7 @@ function initApp() {
     function getOfflineQueue() {
         try {
             return JSON.parse(localStorage.getItem('lvmdp_offline_queue')) || [];
-        } catch(e) {
+        } catch (e) {
             return [];
         }
     }
@@ -880,7 +889,7 @@ function initApp() {
 
         saveOfflineQueue(remainingQueue);
         isSyncing = false;
-        
+
         if (btnSyncNow) {
             btnSyncNow.disabled = false;
             btnSyncNow.textContent = 'Sinkronkan';
@@ -907,7 +916,7 @@ function initApp() {
     function getHistoryLogs() {
         try {
             return JSON.parse(localStorage.getItem('lvmdp_history_logs')) || [];
-        } catch(e) {
+        } catch (e) {
             return [];
         }
     }
@@ -916,7 +925,7 @@ function initApp() {
         const logs = getHistoryLogs();
         const now = new Date();
         const timeStr = now.toLocaleDateString('id-ID') + ' ' + now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
-        
+
         const newLog = {
             time: timeStr,
             panel: panel,
@@ -989,10 +998,10 @@ function initApp() {
         if (!scanChoiceModal) return;
         scannedArea = area;
         scannedPanel = panel;
-        
+
         if (modalAreaName) modalAreaName.textContent = area;
         if (modalPanelName) modalPanelName.textContent = panel;
-        
+
         scanChoiceModal.classList.remove('hidden');
     }
 
@@ -1031,7 +1040,7 @@ function initApp() {
         const indicatorDot = document.getElementById('network-indicator-dot');
         const indicatorText = document.getElementById('network-indicator-text');
         if (!indicator || !indicatorDot || !indicatorText) return;
-        
+
         if (navigator.onLine) {
             indicator.style.background = 'rgba(34,197,94,0.15)';
             indicator.style.borderColor = 'rgba(74,222,128,0.3)';
