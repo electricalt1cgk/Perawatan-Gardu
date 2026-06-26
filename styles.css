@@ -391,15 +391,19 @@ body {
 }
 
 .print-container {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    display: flex;
+    flex-wrap: wrap;
     gap: 20px;
+    justify-content: center;
 }
 
 .qr-label {
-    background: #ffffff; /* Keep labels white for printing */
-    padding: 20px;
-    border-radius: 16px;
+    background: #ffffff;
+    width: 5cm;
+    height: 6cm;
+    padding: 0.4cm;
+    border-radius: 0.5cm;
+    border: 1px solid rgba(0,0,0,0.1);
     text-align: center;
     display: flex;
     flex-direction: column;
@@ -407,21 +411,30 @@ body {
     justify-content: space-between;
     transition: transform 0.2s ease;
     box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    box-sizing: border-box;
 }
 .qr-label:hover {
     transform: scale(1.02);
 }
 .qr-label h4 {
-    font-size: 0.9rem;
+    font-size: 10pt;
     color: #000;
-    margin-bottom: 6px;
+    margin: 0;
     word-break: break-word;
+    font-weight: 600;
 }
 .qr-label p {
-    font-size: 0.8rem;
-    color: #333;
-    margin-bottom: 15px;
+    font-size: 8pt;
+    color: #4b5563;
+    margin: 0 0 10px 0;
     word-break: break-word;
+    line-height: 1.3;
+}
+.qr-code-img canvas, .qr-code-img img {
+    width: 3.2cm !important;
+    height: 3.2cm !important;
+    display: block;
+    margin: 0 auto;
 }
 
 /* Print Specific CSS */
@@ -439,16 +452,21 @@ body {
         max-width: none;
     }
     .print-container {
-        display: grid;
-        grid-template-columns: repeat(4, 1fr);
-        gap: 10px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5cm;
+        justify-content: flex-start;
+        padding: 0.5cm;
     }
     .qr-label {
-        border: 1px solid black;
+        width: 5cm !important;
+        height: 6cm !important;
+        border: 1px solid black !important;
         page-break-inside: avoid;
-        padding: 10px;
-        border-radius: 0;
-        box-shadow: none;
+        padding: 0.4cm !important;
+        border-radius: 0.5cm !important;
+        box-shadow: none !important;
+        box-sizing: border-box !important;
     }
 }
 
